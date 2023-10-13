@@ -1,0 +1,165 @@
+CREATE DATABASE food_data;
+USE food_data;
+
+CREATE TABLE users(
+	user_id INT PRIMARY KEY auto_increment,
+	full_name VARCHAR(50) NOT NULL,
+	email VARCHAR(50) NOT NULL,
+	password VARCHAR(50) NOT NULL
+)
+
+CREATE TABLE restaurant(
+	res_id INT PRIMARY KEY auto_increment,
+	res_name VARCHAR(50) NOT NULL,
+	image VARCHAR(200) NOT NULL,
+	res_desc VARCHAR(500)
+)
+
+CREATE TABLE rate_res(
+	user_id INT,
+	FOREIGN KEY (user_id) REFERENCES users (user_id),
+	res_id INT,
+	FOREIGN KEY (res_id) REFERENCES restaurant(res_id),
+	amount INT,
+	date_rate DATE
+)
+
+
+CREATE TABLE like_res(
+	user_id INT,
+	FOREIGN KEY (user_id) REFERENCES users (user_id),
+	res_id INT,
+	FOREIGN KEY (res_id) REFERENCES restaurant(res_id),
+	date_like DATE
+)
+
+CREATE TABLE type_food(
+	type_id INT PRIMARY KEY auto_increment,
+	type_name VARCHAR(50)
+)
+
+CREATE TABLE food(
+	food_id int PRIMARY KEY auto_increment,
+	food_name VARCHAR(50) NOT NULL,
+	image VARCHAR(200) NOT NULL,
+	price FLOAT NOT NULL,
+	food_desc VARCHAR(500),
+	type_id INT,
+	FOREIGN KEY (type_id) REFERENCES type_food(type_id)
+)
+
+CREATE TABLE sub_food(
+	sub_id INT PRIMARY KEY auto_increment,
+	sub_name VARCHAR(50),
+	sub_price FLOAT,
+	food_id INT,
+	FOREIGN KEY (food_id) REFERENCES food(food_id)
+)
+
+CREATE TABLE order_food(
+	user_id INT,
+	FOREIGN KEY (user_id) REFERENCES users(user_id),
+	food_id INT,
+	FOREIGN KEY (food_id) REFERENCES food(food_id),
+	amount INT,
+	code VARCHAR(50),
+	arr_sub_id VARCHAR(50)
+)
+
+-- Thêm dữ liệu vào bảng users
+INSERT INTO users (full_name, email, password) VALUES 
+('Nguyễn Văn A', 'nguyenvana@gmail.com', 'password1'),
+('Trần Thị B', 'tranb@gmail.com', 'password2'),
+('Lê Văn C', 'levanc@gmail.com', 'password3'),
+('Phạm Thị D', 'phamthid@gmail.com', 'password4'),
+('Hoàng Văn E', 'hoangvane@gmail.com', 'password5');
+
+-- Thêm dữ liệu vào bảng restaurant
+INSERT INTO restaurant (res_name, image, res_desc) VALUES 
+('Nhà hàng A', 'imageA.jpg', 'Nhà hàng A chuyên về món ăn Việt Nam'),
+('Nhà hàng B', 'imageB.jpg', 'Nhà hàng B chuyên về món ăn Nhật Bản'),
+('Nhà hàng C', 'imageC.jpg', 'Nhà hàng C chuyên về món ăn Hàn Quốc'),
+('Nhà hàng D', 'imageD.jpg', 'Nhà hàng D chuyên về món ăn Trung Quốc'),
+('Nhà hàng E', 'imageE.jpg', 'Nhà hàng E chuyên về món ăn Âu Mỹ');
+
+-- Thêm dữ liệu vào bảng type_food
+INSERT INTO type_food (type_name) VALUES 
+('Món ăn Việt Nam'),
+('Món ăn Nhật Bản'),
+('Món ăn Hàn Quốc'),
+('Món ăn Trung Quốc'),
+('Món ăn Âu Mỹ');
+
+-- Thêm dữ liệu vào bảng food
+INSERT INTO food (food_name, image, price, food_desc, type_id) VALUES 
+('Phở bò', 'phobo.jpg', 50000, 'Phở bò Việt Nam nổi tiếng thế giới', 1),
+('Sushi', 'sushi.jpg', 100000, 'Sushi Nhật Bản truyền thống', 2),
+('Kimchi', 'kimchi.jpg', 60000, 'Kimchi Hàn Quốc đặc sản', 3),
+('Dimsum', 'dimsum.jpg', 80000, 'Dimsum Trung Quốc ngon miệng', 4),
+('Pizza', 'pizza.jpg', 150000, 'Pizza Ý thơm ngon hấp dẫn', 5);
+
+-- Thêm dữ liệu vào bảng rate_res
+INSERT INTO rate_res (user_id, res_id, amount, date_rate) VALUES 
+(1, 1, 5, '2023-10-01'),
+(2, 1, 4, '2023-10-02'),
+(3, 2, 5, '2023-10-03'),
+(4, 2, 4, '2023-10-04'),
+(5, 3, 5, '2023-10-05');
+
+-- Thêm dữ liệu vào bảng like_res
+INSERT INTO like_res (user_id, res_id, date_like) VALUES 
+(1, 1, '2023-10-01'),
+(2, 2, '2023-10-02'),
+(3, 3, '2023-10-03'),
+(4, 4, '2023-10-04'),
+(5, 5, '2023-10-05');
+
+-- Thêm dữ liệu vào bảng sub_food
+INSERT INTO sub_food (sub_name, sub_price, food_id) VALUES 
+('Phụ gia A', 10000, 1),
+('Phụ gia B', 20000, 2),
+('Phụ gia C', 30000, 3),
+('Phụ gia D', 40000, 4),
+('Phụ gia E', 50000, 5);
+
+-- Thêm dữ liệu vào bảng order_food
+INSERT INTO order_food (user_id, food_id, amount, code) VALUES 
+(1, 1, 2,'codeA'),
+(2, 2, 1,'codeB'),
+(3, 3, 1,'codeC'),
+(4, 4, 2,'codeD'),
+(5, 5, 1,'codeE');
+
+--Tìm 5 người đã like nhà hàng nhiều nhất.
+SELECT user_id, COUNT(*) as num_likes
+FROM like_res
+GROUP BY user_id
+ORDER BY num_likes DESC
+LIMIT 5;
+
+--Tìm 2 nhà hàng có lượt like nhiều nhất.
+SELECT res_id, COUNT(*) as num_likes
+FROM like_res
+GROUP BY res_id
+ORDER BY num_likes DESC
+LIMIT 2;
+
+-- Tìm người đã đặt hàng nhiều nhất.
+SELECT user_id, COUNT(*) AS num_orders
+FROM order_food
+GROUP BY user_id
+ORDER BY num_orders DESC
+LIMIT 1;
+
+--Tìm người dùng không hoạt động trong hệ thống (không đặt hàng, không like, không đánh giá nhà hàng).
+SELECT user_id
+FROM users
+WHERE user_id NOT IN (
+    SELECT DISTINCT user_id FROM order_food
+    UNION
+    SELECT DISTINCT user_id FROM like_res
+    UNION
+    SELECT DISTINCT user_id FROM rate_res
+);
+
+
